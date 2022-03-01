@@ -1,17 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from 'src/app/services/api';
+import splinterlands from 'splinterlands-js';
+
+interface LoginRequest {
+  username: string;
+  key: string;
+}
 
 export const playerApi = api.injectEndpoints({
   endpoints: (build) => ({
-    login: build.mutation<Record<string, unknown>, void>({
-      queryFn: () => {
-        // use login function from splinterlands-js
-        // need to npm install a branch of splinterlands-js
-        // will need to add correct params to queryFn
-        // use try/catch
-        // if successful, return result like { data: result }
-        // if unsuccessful (caught), return error message like { data: error.message }
-        return { data: {} };
+    login: build.mutation<any, LoginRequest>({
+      queryFn: async (loginRequest) => {
+        try {
+          const result = await splinterlands.login(loginRequest.username, loginRequest.key);
+          if (result.error) {
+            return { error: result.error };
+          }
+          const rawData = JSON.parse(JSON.stringify(result)); // ensure only serializable data is in result
+          return { data: rawData };
+        } catch (error) {
+          return error;
+        }
       },
+      invalidatesTags: [],
     }),
   }),
 });
