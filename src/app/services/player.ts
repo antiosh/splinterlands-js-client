@@ -16,15 +16,33 @@ export const playerApi = api.injectEndpoints({
           if (result.error) {
             return { error: result.error };
           }
-          const rawData = JSON.parse(JSON.stringify(result)); // ensure only serializable data is in result
-          return { data: rawData };
+          return { data: result };
         } catch (error) {
-          return error;
+          if (error.message) {
+            return { error: error.message };
+          }
+          return { error: 'Something went wrong' };
         }
       },
       invalidatesTags: [],
     }),
+    resetPassword: build.mutation<any, string>({
+      queryFn: async (email) => {
+        try {
+          const result = await splinterlands.resetPassword(email);
+          if (result.error) {
+            return { error: result.error };
+          }
+          return { data: result };
+        } catch (error) {
+          if (error.message) {
+            return { error: error.message };
+          }
+          return { error: 'Something went wrong' };
+        }
+      },
+    }),
   }),
 });
 
-export const { useLoginMutation } = playerApi;
+export const { useLoginMutation, useResetPasswordMutation } = playerApi;
